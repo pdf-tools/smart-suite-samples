@@ -1,0 +1,7 @@
+# Code editors
+.code
+.vscode
+.idea
+
+# File system related
+.DS_Store
