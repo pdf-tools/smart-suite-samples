@@ -53,9 +53,9 @@ services:
   # ---------------------------------------------------------------------------
   # Manager - Client-facing API for files and jobs
   # ---------------------------------------------------------------------------
-  smart-suite-manager:
-    image: pdftoolsag/smart-suite-manager:${VERSION:-latest}
-    container_name: smart-suite-manager
+  smart-suite-job-manager:
+    image: pdftoolsag/smart-suite-job-manager:${VERSION:-latest}
+    container_name: smart-suite-job-manager
     ports:
       - "9982:9982"
     environment:
@@ -64,7 +64,7 @@ services:
       ServiceCommunication__Username: "guest"
       ServiceCommunication__Password: "guest"
       Database__DatabaseType: "PostgreSql"
-      Database__ConnectionString: "User ID=smartsuite;Password=smartsuite;Server=smart-suite-manager-db;Port=5432;Database=smartsuite;Maximum Pool Size=50;Timeout=30;"
+      Database__ConnectionString: "User ID=smartsuite;Password=smartsuite;Server=smart-suite-job-manager-db;Port=5432;Database=smartsuite;Maximum Pool Size=50;Timeout=30;"
       FileStorage__FileStorageType: "HostFileSystem"
       FileStorage__FilesDirectoryPath: "/app/storage_folder"
       Encryption__EncryptionKey: "${ENCRYPTION_KEY}"
@@ -77,7 +77,7 @@ services:
       - smart-suite-network
     restart: unless-stopped
     depends_on:
-      smart-suite-manager-db:
+      smart-suite-job-manager-db:
         condition: service_healthy
       smart-suite-rabbitmq:
         condition: service_healthy
@@ -129,9 +129,9 @@ services:
   # ---------------------------------------------------------------------------
   # PostgreSQL - Manager database
   # ---------------------------------------------------------------------------
-  smart-suite-manager-db:
+  smart-suite-job-manager-db:
     image: postgres:15-alpine
-    container_name: smart-suite-manager-db
+    container_name: smart-suite-job-manager-db
     environment:
       POSTGRES_USER: smartsuite
       POSTGRES_PASSWORD: smartsuite

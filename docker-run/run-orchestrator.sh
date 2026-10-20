@@ -19,7 +19,7 @@ docker run -d \
   --network "$NETWORK" \
   --restart unless-stopped \
   -p 9983:9983 \
-  -e "ManagerApi__BaseUrl=http://smart-suite-manager:9982/" \
+  -e "ManagerApi__BaseUrl=http://smart-suite-job-manager:9982/" \
   -e "ManagerApi__PollingIntervalSeconds=3" \
   -e "Database__DatabaseType=PostgreSql" \
   -e "Database__ConnectionString=User ID=smartsuite;Password=smartsuite;Server=smart-suite-orchestrator-db;Port=5432;Database=smartsuite;Maximum Pool Size=50;Timeout=30;" \

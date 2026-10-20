@@ -12,7 +12,7 @@ docker network inspect "$NETWORK" >/dev/null 2>&1 || \
 
 echo "Starting Manager database..."
 docker run -d \
-  --name smart-suite-manager-db \
+  --name smart-suite-job-manager-db \
   --network "$NETWORK" \
   --restart unless-stopped \
   -e POSTGRES_USER=smartsuite \
@@ -43,6 +43,6 @@ docker run -d \
   postgres:15-alpine
 
 echo "Databases started. Waiting for health checks..."
-until docker inspect --format='{{.State.Health.Status}}' smart-suite-manager-db 2>/dev/null | grep -q healthy; do sleep 1; done
+until docker inspect --format='{{.State.Health.Status}}' smart-suite-job-manager-db 2>/dev/null | grep -q healthy; do sleep 1; done
 until docker inspect --format='{{.State.Health.Status}}' smart-suite-orchestrator-db 2>/dev/null | grep -q healthy; do sleep 1; done
 echo "Databases are ready."

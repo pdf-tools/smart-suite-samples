@@ -51,7 +51,7 @@ Options:
 Examples:
   ./smart-suite.sh setup --license-key "<your-license-key>"
   ./smart-suite.sh up
-  ./smart-suite.sh logs manager worker
+  ./smart-suite.sh logs job-manager worker
   ./smart-suite.sh health
   ./smart-suite.sh clean --volumes
   ./smart-suite.sh clean --all
@@ -415,10 +415,10 @@ remove_smart_suite_images() {
   require_docker
   local repo image images count=0
   for repo in \
-    pdftoolsag/smart-suite-manager \
+    pdftoolsag/smart-suite-job-manager \
     pdftoolsag/smart-redact-worker \
     pdftoolsag/smart-suite-orchestrator \
-    pdftoolsag/smart-suite-hitl-web; do
+    pdftoolsag/smart-suite-hitl; do
     images="$(docker images --format '{{.Repository}}:{{.Tag}}' | grep "^${repo}:" || true)"
     [ -n "$images" ] || continue
     while IFS= read -r image; do
@@ -548,11 +548,11 @@ cmd_docker_run_health() {
 
 container_for_service() {
   case "$1" in
-    manager) echo smart-suite-manager ;;
+    job-manager) echo smart-suite-job-manager ;;
     worker) echo smart-redact-worker ;;
     orchestrator) echo smart-suite-orchestrator ;;
-    hitl|hitl-web) echo smart-suite-hitl-web ;;
-    manager-db) echo smart-suite-manager-db ;;
+    hitl) echo smart-suite-hitl ;;
+    job-manager-db) echo smart-suite-job-manager-db ;;
     orchestrator-db) echo smart-suite-orchestrator-db ;;
     rabbitmq) echo smart-suite-rabbitmq ;;
     *) echo "$1" ;;
@@ -570,11 +570,11 @@ cmd_docker_run_logs() {
     done
   else
     containers=(
-      smart-suite-manager
+      smart-suite-job-manager
       smart-redact-worker
       smart-suite-orchestrator
-      smart-suite-hitl-web
-      smart-suite-manager-db
+      smart-suite-hitl
+      smart-suite-job-manager-db
       smart-suite-orchestrator-db
       smart-suite-rabbitmq
     )
@@ -602,9 +602,9 @@ cmd_docker_run_pull() {
   docker pull postgres:15-alpine
   docker pull alpine:3
   docker pull rabbitmq:4-management-alpine
-  docker pull "pdftoolsag/smart-suite-manager:${version}"
+  docker pull "pdftoolsag/smart-suite-job-manager:${version}"
   docker pull "pdftoolsag/smart-suite-orchestrator:${version}"
-  docker pull "pdftoolsag/smart-suite-hitl-web:${version}"
+  docker pull "pdftoolsag/smart-suite-hitl:${version}"
   if [ "$VARIANT" = "gpu" ]; then
     docker pull "pdftoolsag/smart-redact-worker:${version}-cuda"
   else

@@ -14,7 +14,7 @@ docker network inspect "$NETWORK" >/dev/null 2>&1 || \
 
 echo "Starting Smart Suite HITL Web UI..."
 docker run -d \
-  --name smart-suite-hitl-web \
+  --name smart-suite-hitl \
   --network "$NETWORK" \
   --restart unless-stopped \
   -p "${HITL_WEB_PORT}:8080" \
@@ -25,6 +25,6 @@ docker run -d \
   --health-timeout 10s \
   --health-start-period 20s \
   --health-retries 12 \
-  "pdftoolsag/smart-suite-hitl-web:${VERSION}"
+  "pdftoolsag/smart-suite-hitl:${VERSION}"
 
 echo "HITL Web UI started at http://localhost:${HITL_WEB_PORT}"

@@ -65,11 +65,11 @@ docker inspect --format='{{.State.Health.Status}}' smart-redact-worker
 ## Stopping Services
 
 ```bash
-docker stop smart-suite-manager smart-redact-worker smart-suite-orchestrator smart-suite-hitl-web \
-           smart-suite-manager-db smart-suite-orchestrator-db
+docker stop smart-suite-job-manager smart-redact-worker smart-suite-orchestrator smart-suite-hitl \
+           smart-suite-job-manager-db smart-suite-orchestrator-db
 
-docker rm smart-suite-manager smart-redact-worker smart-suite-orchestrator smart-suite-hitl-web \
-         smart-suite-manager-db smart-suite-orchestrator-db
+docker rm smart-suite-job-manager smart-redact-worker smart-suite-orchestrator smart-suite-hitl \
+         smart-suite-job-manager-db smart-suite-orchestrator-db
 ```
 
 Or use the cleanup script (covers docker-run naming only):

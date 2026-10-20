@@ -15,7 +15,7 @@ docker network inspect "$NETWORK" >/dev/null 2>&1 || \
 
 echo "Starting Smart Suite Manager..."
 docker run -d \
-  --name smart-suite-manager \
+  --name smart-suite-job-manager \
   --network "$NETWORK" \
   --restart unless-stopped \
   -p 9982:9982 \
@@ -24,7 +24,7 @@ docker run -d \
   -e "ServiceCommunication__Username=guest" \
   -e "ServiceCommunication__Password=guest" \
   -e "Database__DatabaseType=PostgreSql" \
-  -e "Database__ConnectionString=User ID=smartsuite;Password=smartsuite;Server=smart-suite-manager-db;Port=5432;Database=smartsuite;Maximum Pool Size=50;Timeout=30;" \
+  -e "Database__ConnectionString=User ID=smartsuite;Password=smartsuite;Server=smart-suite-job-manager-db;Port=5432;Database=smartsuite;Maximum Pool Size=50;Timeout=30;" \
   -e "FileStorage__FileStorageType=HostFileSystem" \
   -e "FileStorage__FilesDirectoryPath=/app/storage_folder" \
   -e "Encryption__EncryptionKey=${ENCRYPTION_KEY}" \
@@ -37,7 +37,7 @@ docker run -d \
   --health-timeout 15s \
   --health-start-period 30s \
   --health-retries 30 \
-  "pdftoolsag/smart-suite-manager:${VERSION}"
+  "pdftoolsag/smart-suite-job-manager:${VERSION}"
 
 echo "Manager started at http://localhost:9982"
 echo "Swagger UI: http://localhost:9982/swagger"

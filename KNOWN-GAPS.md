@@ -12,7 +12,7 @@ Extract samples) and upstream-only fixes belong in Jira, not here.
 
 | #   | Gap                                                                    | Blocks                                              | Fixed in                         |
 | --- | ---------------------------------------------------------------------- | --------------------------------------------------- | -------------------------------- |
-| G1  | `pdftoolsag/smart-suite-{manager,orchestrator,hitl-web}` not published | Pulling the images, so running the samples at all   | `smart-redact` release + Docker Hub |
+| G1  | `pdftoolsag/smart-suite-{job-manager,orchestrator,hitl}` not published | Pulling the images, so running the samples at all   | `smart-redact` release + Docker Hub |
 | G2  | No `suite/v1.0.0` release, so no Smart Suite `1.0.0` / `latest` tag     | "Runs on Smart Suite 1.0" acceptance check          | `smart-redact` release           |
 | G3  | No Smart Suite pages on the documentation portal                        | Correct documentation links                         | `documentation-portal`           |
 | G4  | No Smart Suite licensing page, key format or confirmed trial-key flow   | License links, placeholders and prerequisite text   | Licensing / portal               |
@@ -23,24 +23,34 @@ Extract samples) and upstream-only fixes belong in Jira, not here.
 **Missing:** Docker Hub has only `pdftoolsag/smart-redact-{manager,worker,orchestrator,hitl-web}`. The
 `smart-suite-*` repositories return 404. The `smart-redact` release workflow still publishes the old names.
 
-**Until then:** this repository already references the final names. The Worker keeps
-`pdftoolsag/smart-redact-worker` (`-cuda` for GPU), because a product worker keeps its product name.
+**Until then:** this repository already references the agreed names:
+
+| Old Docker Hub image                   | Smart Suite image                     |
+| -------------------------------------- | ------------------------------------- |
+| `pdftoolsag/smart-redact-manager`      | `pdftoolsag/smart-suite-job-manager`  |
+| `pdftoolsag/smart-redact-orchestrator` | `pdftoolsag/smart-suite-orchestrator` |
+| `pdftoolsag/smart-redact-hitl-web`     | `pdftoolsag/smart-suite-hitl`         |
+| `pdftoolsag/smart-redact-worker`       | unchanged (`-cuda` for GPU)           |
+
+Container and Compose service names match the image names (`smart-suite-job-manager`, `smart-suite-hitl`).
 `docker compose up` fails to pull the three `smart-suite-*` images. To test locally, re-tag the old images:
 
 ```bash
-for svc in manager orchestrator hitl-web; do
-  docker pull "pdftoolsag/smart-redact-${svc}:latest"
-  docker tag  "pdftoolsag/smart-redact-${svc}:latest" "pdftoolsag/smart-suite-${svc}:latest"
+for pair in manager:job-manager orchestrator:orchestrator hitl-web:hitl; do
+  docker pull "pdftoolsag/smart-redact-${pair%%:*}:latest"
+  docker tag  "pdftoolsag/smart-redact-${pair%%:*}:latest" "pdftoolsag/smart-suite-${pair##*:}:latest"
 done
 ```
 
 **Upstream change (`smart-redact`):**
 - `.github/workflows/release.yml`, `RETAG_IMAGES`: change `"dockerhub":"smart-redact-manager"` and
-  `"dockerhub":"smart-redact-orchestrator"` to `smart-suite-manager` and `smart-suite-orchestrator`. Leave both
-  `smart-redact-worker` entries unchanged.
+  `"dockerhub":"smart-redact-orchestrator"` to `smart-suite-job-manager` and `smart-suite-orchestrator`. Leave
+  both `smart-redact-worker` entries unchanged.
 - `.github/workflows/release.yml`, `REBUILD_IMAGES`: change `dockerhub` and `image_title` from
-  `smart-redact-hitl-web` to `smart-suite-hitl-web`.
+  `smart-redact-hitl-web` to `smart-suite-hitl`.
 - Create the three repositories under the `pdftoolsag` Docker Hub organization.
+- Mark `pdftoolsag/smart-redact-{manager,orchestrator,hitl-web}` as deprecated/archived on Docker Hub. The images
+  stay available.
 - `docs/getting-started/RELEASE.md`, "What Happens After Publishing": update the image list.
 
 **Change here when it lands:** nothing, if the published names are exactly the ones above. If they differ, update
@@ -49,6 +59,10 @@ every reference (`grep -rn "pdftoolsag/smart-suite" .`):
 - `docker-run/run-manager.sh`, `run-orchestrator.sh`, `run-hitl-web.sh`: the `docker run` image argument
 - `docker-run/cleanup.sh`: `IMAGE_REPOS`
 - `smart-suite.sh`: `remove_smart_suite_images` and `cmd_docker_run_pull`
+
+Container names follow the image names, so also update `container_name`/`--name`, `ManagerApi__BaseUrl`, the
+Manager database `Server=`, `cleanup.sh` `CONTAINERS`, `container_for_service` and `cmd_docker_run_logs` in
+`smart-suite.sh`, and the container lists in `docker-run/README.md`.
 
 Then run the samples end to end (see G2).
 
@@ -112,14 +126,17 @@ on whether the portal trial key is a Smart Suite key.
 
 ## G5: Separate Worker version (PDFTAI-666)
 
-**Missing:** today every image carries the Suite version. PDFTAI-666 gives the Smart Redact Worker its own release
-stream (`redact-worker/v`, continuing from `1.1.1`), so the Worker tag will stop matching the Manager tag.
+**Missing:** PDFTAI-666 gives the Smart Redact Worker its own release stream (`redact-worker/v`). The Smart Suite
+images (`job-manager`, `orchestrator`, `hitl`) start at `1.0.0`, but the Worker continues at `1.2.0`, so the Worker
+tag doesn't match the other tags.
 
-**Until then:** one `VERSION` drives every image, which is correct while the versions match.
+**Until then:** one `VERSION` drives every image, so only `latest` works. Don't set `VERSION=1.0.0`: it would pull
+`smart-redact-worker:1.0.0`, an old Smart Redact build.
 
-**Change here when it lands:** add `WORKER_VERSION`, defaulting to `${VERSION:-latest}`:
+**Change here when it lands:** add `WORKER_VERSION`, defaulting to `latest`. Don't fall back to `VERSION`,
+because the Suite and Worker versions differ:
 - `docker-compose/{cpu,gpu,minimal}/docker-compose.yml`: the Worker `image:` line
-  (`pdftoolsag/smart-redact-worker:${WORKER_VERSION:-${VERSION:-latest}}`, plus `-cuda` in `gpu`)
+  (`pdftoolsag/smart-redact-worker:${WORKER_VERSION:-latest}`, plus `-cuda` in `gpu`)
 - `docker-run/run-worker.sh`, `docker-run/run-worker-gpu.sh`: the image tag
 - `smart-suite.sh`: the `load_env_file` allowlist, the generated env file comments in `write_env_file`, and
   `cmd_docker_run_pull`

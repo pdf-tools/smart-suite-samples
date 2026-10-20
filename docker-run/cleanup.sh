@@ -14,11 +14,11 @@
 set -euo pipefail
 
 CONTAINERS=(
-  smart-suite-manager
+  smart-suite-job-manager
   smart-redact-worker
   smart-suite-orchestrator
-  smart-suite-hitl-web
-  smart-suite-manager-db
+  smart-suite-hitl
+  smart-suite-job-manager-db
   smart-suite-orchestrator-db
   smart-suite-rabbitmq
 )
@@ -31,10 +31,10 @@ VOLUMES=(
 )
 
 IMAGE_REPOS=(
-  pdftoolsag/smart-suite-manager
+  pdftoolsag/smart-suite-job-manager
   pdftoolsag/smart-redact-worker
   pdftoolsag/smart-suite-orchestrator
-  pdftoolsag/smart-suite-hitl-web
+  pdftoolsag/smart-suite-hitl
 )
 
 NETWORK="smart-suite-network"
