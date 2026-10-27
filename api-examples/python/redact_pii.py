@@ -18,7 +18,7 @@ Environment variables:
     SMART_SUITE_JOB_TIMEOUT_SECONDS   - Timeout for synchronous detection/redaction
                                          requests (default: 3600)
 
-See https://www.pdf-tools.com/docs/smart-redact for full API documentation.
+See https://www.pdf-tools.com/docs/smart-suite/ for full API documentation.
 """
 
 import argparse
@@ -66,14 +66,12 @@ def start_detection(base_url, pdf_file_id, dek_token):
     return response.json()
 
 
-def start_redaction(base_url, pdf_file_id, fdf_file_id, pdf_dek_token, fdf_dek_token, redactions):
+def start_redaction(base_url, pdf_file_id, dek_token, redactions):
     """Start a Sensitive Information Redaction job."""
     url = f"{base_url}/v1/jobs/redaction"
     payload = {
         "pdfFileId": pdf_file_id,
-        "fdfFileId": fdf_file_id,
-        "pdfDekToken": pdf_dek_token,
-        "fdfDekToken": fdf_dek_token,
+        "dekToken": dek_token,
         "redactionInput": {
             "redactions": redactions,
         },
@@ -189,23 +187,11 @@ def main():
     detection_start = start_detection(base_url, pdf_file_id, pdf_dek_token)
     detection_result = resolve_job_response(base_url, "detection", detection_start)
     ensure_job_succeeded(detection_result, "Detection")
-    fdf_file = get_output_file(detection_start, "fdf") or get_output_file(detection_result, "fdf")
-    if not fdf_file or not fdf_file.get("fileId") or not fdf_file.get("dekToken"):
-        print("Error: Detection did not return an FDF output file with a DEK token.", file=sys.stderr)
-        sys.exit(1)
-
     redactions = get_redactions(detection_result)
-    print("Detection complete.")
+    print(f"Detection complete. Redactions: {len(redactions)}")
 
     print("Starting PII redaction ...")
-    redaction_start = start_redaction(
-        base_url,
-        pdf_file_id,
-        fdf_file["fileId"],
-        pdf_dek_token,
-        fdf_file["dekToken"],
-        redactions,
-    )
+    redaction_start = start_redaction(base_url, pdf_file_id, pdf_dek_token, redactions)
     redaction_result = resolve_job_response(base_url, "redaction", redaction_start)
     ensure_job_succeeded(redaction_result, "Redaction")
     redacted_pdf = get_output_file(redaction_start, "pdf") or get_output_file(redaction_result, "pdf")

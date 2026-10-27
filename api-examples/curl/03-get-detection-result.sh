@@ -47,10 +47,6 @@ if error.get("detail"):
 if error.get("traceId"):
     print(f"  errorTraceId: {error.get('traceId')}")
 
-for output_file in data.get("outputFiles") or []:
-    if output_file.get("fileCode") == "fdf":
-        print("  fdfFileId:", output_file.get("fileId"))
-
 redactions = (data.get("result") or {}).get("redactions") or []
 if redactions:
     print(f"  redactions: {len(redactions)}")
@@ -72,8 +68,8 @@ elif [ "$http_code" = "200" ] && { [ "$job_status" = "error" ] || [ -n "$job_err
   exit 1
 elif [ "$http_code" = "200" ]; then
   echo "Detection is complete."
-  echo "If this job was started asynchronously, keep using the fdfDekToken from step 2."
   echo "You can pass the saved detection result JSON file to step 4 as the redactions source."
+  echo "Step 4 also needs the PDF's own fileId and dekToken from step 1."
 else
   echo "Unexpected status code: $http_code"
   exit 1

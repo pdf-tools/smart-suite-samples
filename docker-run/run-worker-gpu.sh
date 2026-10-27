@@ -11,7 +11,7 @@ set -euo pipefail
 : "${PDFTOOLS_LICENSE_KEY:?Error: PDFTOOLS_LICENSE_KEY is not set}"
 : "${ENCRYPTION_KEY:?Error: ENCRYPTION_KEY is not set}"
 
-VERSION="${VERSION:-latest}"
+WORKER_VERSION="${WORKER_VERSION:-1.2.0}"
 NETWORK="smart-suite-network"
 
 docker network inspect "$NETWORK" >/dev/null 2>&1 || \
@@ -42,7 +42,7 @@ docker run -d \
   --health-timeout 30s \
   --health-start-period 60s \
   --health-retries 30 \
-  "pdftoolsag/smart-redact-worker:${VERSION}-cuda"
+  "pdftoolsag/smart-redact-worker:${WORKER_VERSION}-cuda"
 
 echo "Worker (GPU) started."
 echo "Inspect container health with: docker inspect --format='{{.State.Health.Status}}' smart-redact-worker"

@@ -2,7 +2,7 @@
 
 Usage examples for Smart Redact workflows on the Smart Suite Manager API.
 
-> For the full API reference, refer to [Smart Redact API Documentation](https://www.pdf-tools.com/docs/smart-redact/references/api/).
+> For the full API reference, refer to [Smart Suite API Documentation](https://www.pdf-tools.com/docs/smart-suite/references/api/).
 
 ## Available examples
 
@@ -19,18 +19,23 @@ A standard PII detection and redaction workflow:
 ```
 1. Upload a PDF file           POST /v1/files/upload/fromLocal
 2. Start PII detection         POST /v1/jobs/detection
-3. Save FDF output + redactions from the detection response
+3. Take the detected entities from the response's result.redactions
 4. Start PII redaction         POST /v1/jobs/redaction
 5. Download the redacted PDF   POST /v1/files/download
 ```
+
+Detection and redaction both take the uploaded PDF's own `fileId` and `dekToken`. Detection
+returns its entities inline in `result.redactions` and produces no file; redaction returns the
+redacted PDF in `outputFiles`.
 
 For asynchronous jobs:
 
 ```
 1. Create the job with "processingMode": "async"
-2. Save the output file reference and DEK token from the initial response
+2. Save the jobId. For a redaction job, also save the outputFiles entry and its DEK
+   token: poll responses omit the token. A detection job produces no file.
 3. Poll GET /v1/jobs/.../{jobId}/result until "jobStatus" becomes "finished"
-4. Keep using the DEK token from the initial async response for downloads
+4. Use the DEK token from the initial async response to download the result file
 ```
 
 ## Running the examples
@@ -81,4 +86,4 @@ If you're using the Orchestrator (web UI backend), it has its own API with authe
 - **Default credentials:** `admin@example.com` / `Admin@1234!Tmp` (the Orchestrator suggests changing the password after first login)
 - **Swagger UI:** http://localhost:9983/swagger
 
-> For details, refer to [Orchestrator Authentication Guide](https://www.pdf-tools.com/docs/smart-redact/guides/authentication/).
+> For details, refer to [Orchestrator Authentication Guide](https://www.pdf-tools.com/docs/smart-suite/guides/authentication/).

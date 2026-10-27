@@ -16,7 +16,7 @@ Environment variables:
     SMART_SUITE_JOB_TIMEOUT_SECONDS   - Timeout for synchronous detection/redaction
                                          requests (default: 3600)
 
-See https://www.pdf-tools.com/docs/smart-redact for full API documentation.
+See https://www.pdf-tools.com/docs/smart-suite/ for full API documentation.
 """
 
 import argparse
@@ -85,14 +85,6 @@ def resolve_job_response(base_url, job_type, initial_response):
     return initial_response
 
 
-def get_output_file(job_response, file_code):
-    """Return the first output file matching the requested file code."""
-    for output_file in job_response.get("outputFiles") or []:
-        if output_file.get("fileCode") == file_code:
-            return output_file
-    return None
-
-
 def format_job_error(job_response, stage_name):
     """Build a readable error message from a failed job response."""
     error = job_response.get("error") or {}
@@ -138,14 +130,8 @@ def main():
     detection_start = start_detection(base_url, pdf_file_id, pdf_dek_token)
     detection_result = resolve_job_response(base_url, "detection", detection_start)
     ensure_job_succeeded(detection_result, "Detection")
-    print("Detection complete.\n")
-
-    fdf_file = get_output_file(detection_start, "fdf") or get_output_file(detection_result, "fdf")
-    if fdf_file:
-        print(f"FDF output fileId: {fdf_file.get('fileId')}")
-        if fdf_file.get("dekToken"):
-            print("FDF dekToken: present")
-        print()
+    redactions = (detection_result.get("result") or {}).get("redactions") or []
+    print(f"Detection complete. Redactions: {len(redactions)}\n")
 
     print(json.dumps(detection_result, indent=2))
 

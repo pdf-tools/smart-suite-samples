@@ -2,7 +2,7 @@
 
 Sample configurations and examples for deploying and using Smart Suite by Pdftools.
 
-Smart Suite runs the Pdftools Smart products behind one shared Manager and Orchestrator. These samples cover [Smart Redact](https://www.pdf-tools.com/docs/smart-redact), which automatically detects and redacts personally identifiable information (PII) in PDF documents using pattern matching, keyword detection, and ML-based named entity recognition (GLiNER).
+Smart Suite runs the Pdftools Smart products behind one shared Manager and Orchestrator. These samples cover [Smart Redact](https://www.pdf-tools.com/docs/smart-suite/smart-redact/), which automatically detects and redacts personally identifiable information (PII) in PDF documents using pattern matching, keyword detection, and ML-based named entity recognition (GLiNER).
 
 ## Architecture
 
@@ -35,12 +35,12 @@ flowchart LR
 | **Manager**             | 9982 | Client-facing API for file uploads and detection/redaction jobs             |
 | **Smart Redact Worker** | 4885 | Internal service that performs PII detection and redaction                  |
 
-> For detailed architecture documentation, refer to [Smart Redact Architecture](https://www.pdf-tools.com/docs/smart-redact/references/architecture/).
+> For detailed architecture documentation, refer to [Smart Suite Architecture](https://www.pdf-tools.com/docs/smart-suite/references/architecture/).
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) v2+
-- A valid Smart Suite license key (legacy Smart Redact keys also work). Register at [portal.pdf-tools.com](https://portal.pdf-tools.com/) for a free trial key, or see the [licensing docs](https://www.pdf-tools.com/docs/licenses/products/smart-redact-license/) for production keys.
+- [Docker](https://docs.docker.com/get-started/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) v2+
+- A valid Smart Suite license key (legacy Smart Redact keys also work). [Contact sales](https://www.pdf-tools.com/contact/) to get a key, or see the [licensing docs](https://www.pdf-tools.com/docs/licenses/products/smart-suite-license/) for the key format and validation details.
 - For GPU acceleration: NVIDIA GPU with [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 
 ## Windows users
@@ -56,7 +56,7 @@ The repository also includes a standalone PowerShell key-generation helper for m
 
 The fastest way to get Smart Suite running:
 
-**Prerequisites:** A valid Smart Suite license key (legacy Smart Redact keys also work). Register at [portal.pdf-tools.com](https://portal.pdf-tools.com/) for a free trial key, or see the [licensing docs](https://www.pdf-tools.com/docs/licenses/products/smart-redact-license/) for production keys.
+**Prerequisites:** A valid Smart Suite license key (legacy Smart Redact keys also work). [Contact sales](https://www.pdf-tools.com/contact/) to get a key, or see the [licensing docs](https://www.pdf-tools.com/docs/licenses/products/smart-suite-license/) for the key format and validation details.
 
 ```bash
 # 1. Clone this repository
@@ -64,7 +64,7 @@ git clone https://github.com/pdf-tools/smart-suite-samples.git
 cd smart-suite-samples
 
 # 2. Create your .env file with generated secrets
-./smart-suite.sh setup --license-key "<your-license-key>"
+./smart-suite.sh setup --license-key "<SMARTST,V1,XXXXXXXXXXXXXXXXXXXX>"
 
 # 3. Start all services and wait for Docker health checks
 ./smart-suite.sh up
@@ -133,7 +133,7 @@ For complete usage examples, refer to [api-examples/](api-examples/), which cove
 - Running PII redaction
 - End-to-end workflows
 
-> For the full API reference, refer to [Smart Redact API Documentation](https://www.pdf-tools.com/docs/smart-redact/references/api/).
+> For the full API reference, refer to [Smart Suite API Documentation](https://www.pdf-tools.com/docs/smart-suite/references/api/).
 
 ## Configuration reference
 
@@ -144,11 +144,17 @@ Configure all Smart Suite services through environment variables:
 | `PDFTOOLS_LICENSE_KEY`    | Yes      | Smart Suite license key (legacy Smart Redact keys also work)                                   |
 | `ENCRYPTION_KEY`          | Yes      | 32-byte Base64-encoded AES-256-GCM key                                                         |
 | `ORCHESTRATOR_JWT_SECRET` | Yes\*    | JWT signing secret (min 32 chars). \*Only for Orchestrator.                                    |
-| `VERSION`                 | No       | Docker image tag (default: `latest`). Smart Suite images are available from `1.0.0`.           |
+| `VERSION`                 | No       | Image tag for the Job Manager, Orchestrator and HITL Web UI (default: `1.0.0`)                 |
+| `WORKER_VERSION`          | No       | Image tag for the Smart Redact Worker (default: `1.2.0`)                                       |
 | `HITL_WEB_PORT`           | No       | Host port for the HITL Web UI (default: `3000`)                                                |
 | `HITL_ORCHESTRATOR_URL`   | No       | Browser-facing Orchestrator API URL used by the HITL Web UI (default: `http://localhost:9983`) |
 
-> For all configuration options, refer to [Smart Redact Configuration Guide](https://www.pdf-tools.com/docs/smart-redact/guides/configuration/).
+> Smart Suite and each Worker are released independently and carry their own version numbers, so `VERSION` and
+> `WORKER_VERSION` are pinned separately and their `latest` tags are not a matched pair. For which Worker
+> versions run with which Smart Suite version, refer to
+> [Version compatibility](https://www.pdf-tools.com/docs/smart-suite/references/version-compatibility/).
+
+> For all configuration options, refer to [Smart Suite Configuration Guide](https://www.pdf-tools.com/docs/smart-suite/guides/configuration/).
 
 ## Security notes
 
@@ -163,11 +169,11 @@ For any non-local deployment, replace these with strong values.
 
 ## Documentation
 
-- [Smart Redact Documentation](https://www.pdf-tools.com/docs/smart-redact)
-- [Configuration Guide](https://www.pdf-tools.com/docs/smart-redact/guides/configuration/)
-- [API Reference](https://www.pdf-tools.com/docs/smart-redact/references/api/)
-- [Architecture](https://www.pdf-tools.com/docs/smart-redact/references/architecture/)
-- [Licensing](https://www.pdf-tools.com/docs/licenses/products/smart-redact-license/)
+- [Smart Suite Documentation](https://www.pdf-tools.com/docs/smart-suite/)
+- [Configuration Guide](https://www.pdf-tools.com/docs/smart-suite/guides/configuration/)
+- [API Reference](https://www.pdf-tools.com/docs/smart-suite/references/api/)
+- [Architecture](https://www.pdf-tools.com/docs/smart-suite/references/architecture/)
+- [Licensing](https://www.pdf-tools.com/docs/licenses/products/smart-suite-license/)
 
 ## License
 

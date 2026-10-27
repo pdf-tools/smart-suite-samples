@@ -2,13 +2,13 @@
 # =============================================================================
 # Step 2: Start a PII detection job
 # =============================================================================
-# Usage: ./02-detect-pii.sh <pdfFileId> <pdfDekToken> [sync|async] [detection-config-json-file]
+# Usage: ./02-detect-pii.sh <pdfFileId> <dekToken> [sync|async] [detection-config-json-file]
 # =============================================================================
 set -euo pipefail
 
 MANAGER_URL="${MANAGER_URL:-http://localhost:9982}"
-PDF_FILE_ID="${1:?Usage: $0 <pdfFileId> <pdfDekToken> [sync|async] [detection-config-json-file]}"
-PDF_DEK_TOKEN="${2:?Usage: $0 <pdfFileId> <pdfDekToken> [sync|async] [detection-config-json-file]}"
+PDF_FILE_ID="${1:?Usage: $0 <pdfFileId> <dekToken> [sync|async] [detection-config-json-file]}"
+DEK_TOKEN="${2:?Usage: $0 <pdfFileId> <dekToken> [sync|async] [detection-config-json-file]}"
 PROCESSING_MODE="${3:-async}"
 CONFIG_FILE="${4:-}"
 
@@ -25,7 +25,7 @@ if [ -n "$CONFIG_FILE" ] && [ ! -f "$CONFIG_FILE" ]; then
   exit 1
 fi
 
-payload=$(python3 - "$PDF_FILE_ID" "$PDF_DEK_TOKEN" "$PROCESSING_MODE" "$CONFIG_FILE" <<'PY'
+payload=$(python3 - "$PDF_FILE_ID" "$DEK_TOKEN" "$PROCESSING_MODE" "$CONFIG_FILE" <<'PY'
 import json
 import sys
 
@@ -80,12 +80,6 @@ if error.get("detail"):
 if error.get("traceId"):
     print(f"  errorTraceId: {error.get('traceId')}")
 
-for output_file in data.get("outputFiles") or []:
-    if output_file.get("fileCode") == "fdf":
-        print("  fdfFileId:", output_file.get("fileId"))
-        if output_file.get("dekToken"):
-            print("  fdfDekToken: present")
-
 redactions = (data.get("result") or {}).get("redactions") or []
 if redactions:
     print(f"  redactions: {len(redactions)}")
@@ -99,7 +93,7 @@ job_error_trace_id=$(printf '%s' "$body" | python3 -c 'import json,sys; data=jso
 
 if [ "$http_code" = "202" ]; then
   echo "Job accepted asynchronously."
-  echo "Save the 'jobId', 'fdfFileId', and 'fdfDekToken' from this response."
+  echo "Save the 'jobId' from this response."
   echo "Use step 3 to poll for completion."
 elif [ "$http_code" = "200" ] && { [ "$job_status" = "error" ] || [ -n "$job_error_title" ] || [ -n "$job_error_detail" ] || [ -n "$job_error_trace_id" ]; }; then
   echo "Detection failed."
@@ -109,7 +103,7 @@ elif [ "$http_code" = "200" ] && { [ "$job_status" = "error" ] || [ -n "$job_err
   exit 1
 elif [ "$http_code" = "200" ]; then
   echo "Detection completed synchronously."
-  echo "Use the returned FDF file reference and redactions for the redaction step."
+  echo "Pass the detected redactions to step 4, with the PDF's own fileId and dekToken."
 else
   echo "Unexpected status code: $http_code"
   exit 1

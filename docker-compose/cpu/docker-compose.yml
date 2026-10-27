@@ -55,7 +55,7 @@ services:
   # Manager - Client-facing API for files and jobs
   # ---------------------------------------------------------------------------
   smart-suite-job-manager:
-    image: pdftoolsag/smart-suite-job-manager:${VERSION:-latest}
+    image: pdftoolsag/smart-suite-job-manager:${VERSION:-1.0.0}
     container_name: smart-suite-job-manager
     ports:
       - "9982:9982"
@@ -95,7 +95,7 @@ services:
   # Worker - PII detection and redaction engine (CPU)
   # ---------------------------------------------------------------------------
   smart-redact-worker:
-    image: pdftoolsag/smart-redact-worker:${VERSION:-latest}
+    image: pdftoolsag/smart-redact-worker:${WORKER_VERSION:-1.2.0}
     container_name: smart-redact-worker
     expose:
       - "4885"
@@ -131,7 +131,7 @@ services:
   # Orchestrator - Web UI backend, user management, JWT auth
   # ---------------------------------------------------------------------------
   smart-suite-orchestrator:
-    image: pdftoolsag/smart-suite-orchestrator:${VERSION:-latest}
+    image: pdftoolsag/smart-suite-orchestrator:${VERSION:-1.0.0}
     container_name: smart-suite-orchestrator
     ports:
       - "9983:9983"
@@ -161,7 +161,7 @@ services:
   # HITL Web UI - Human-in-the-loop review interface
   # ---------------------------------------------------------------------------
   smart-suite-hitl:
-    image: pdftoolsag/smart-suite-hitl:${VERSION:-latest}
+    image: pdftoolsag/smart-suite-hitl:${VERSION:-1.0.0}
     container_name: smart-suite-hitl
     ports:
       - "${HITL_WEB_PORT:-3000}:8080"

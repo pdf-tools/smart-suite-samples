@@ -8,7 +8,7 @@ Individual `docker run` scripts for each Smart Suite service. Use these when you
 You can also use the root helper with the docker-run backend:
 
 ```bash
-../smart-suite.sh setup --backend docker-run --license-key "<your-license-key>"
+../smart-suite.sh setup --backend docker-run --license-key "<SMARTST,V1,XXXXXXXXXXXXXXXXXXXX>"
 ../smart-suite.sh up --backend docker-run
 ../smart-suite.sh health --backend docker-run
 ../smart-suite.sh logs --backend docker-run
@@ -23,7 +23,7 @@ You can also use the root helper with the docker-run backend:
 
 2. Set required environment variables:
    ```bash
-   export PDFTOOLS_LICENSE_KEY="<your-license-key>"
+   export PDFTOOLS_LICENSE_KEY="<SMARTST,V1,XXXXXXXXXXXXXXXXXXXX>"
    export ENCRYPTION_KEY=$(../scripts/generate-encryption-key.sh)
    export ORCHESTRATOR_JWT_SECRET=$(openssl rand -base64 64 | tr -d '\n')
    ```

@@ -16,7 +16,7 @@
 /// Environment variables:
 ///     MANAGER_URL  - Smart Suite Manager base URL (default: http://localhost:9982)
 ///
-/// See https://www.pdf-tools.com/docs/smart-redact for full API documentation.
+/// See https://www.pdf-tools.com/docs/smart-suite/ for full API documentation.
 /// </summary>
 
 using System.Net;
@@ -109,19 +109,9 @@ if (TryGetString(detectionStart, "jobStatus") == "inProgress")
 }
 EnsureJobSucceeded(detectionResult, "Detection");
 
-var fdfFile = GetOutputFile(detectionStart, "fdf") ?? GetOutputFile(detectionResult, "fdf");
-if (fdfFile is null)
-{
-    Console.Error.WriteLine("Error: Detection did not return an FDF output file.");
-    return 1;
-}
-
-var fdfFileId = GetRequiredString(fdfFile.Value, "fileId");
-var fdfDekToken = GetRequiredString(fdfFile.Value, "dekToken");
 var redactions = GetRequiredRedactions(detectionResult);
 
 Console.WriteLine();
-Console.WriteLine($"FDF fileId: {fdfFileId}");
 Console.WriteLine($"Redactions: {redactions.GetArrayLength()}");
 
 PrintStep(3, "Sensitive Information Redaction");
@@ -129,9 +119,7 @@ PrintStep(3, "Sensitive Information Redaction");
 var redactionPayload = new
 {
     pdfFileId,
-    fdfFileId,
-    pdfDekToken,
-    fdfDekToken,
+    dekToken = pdfDekToken,
     redactionInput = new
     {
         redactions = redactions.Clone()

@@ -2,14 +2,14 @@
 
 Three Docker Compose configurations for different use cases.
 
-> For detailed configuration options, see [Smart Redact Configuration Guide](https://www.pdf-tools.com/docs/smart-redact/guides/configuration/).
+> For detailed configuration options, see [Smart Suite Configuration Guide](https://www.pdf-tools.com/docs/smart-suite/guides/configuration/).
 
 ## Variants
 
 From this directory, use the root helper script:
 
 ```bash
-../smart-suite.sh setup --license-key "<your-license-key>"
+../smart-suite.sh setup --license-key "<SMARTST,V1,XXXXXXXXXXXXXXXXXXXX>"
 ../smart-suite.sh up
 ../smart-suite.sh health
 ```
@@ -63,7 +63,7 @@ docker compose up -d --wait
 
 | Variable | How to generate | Description |
 |----------|----------------|-------------|
-| `PDFTOOLS_LICENSE_KEY` | See the [Smart Redact licensing docs](https://www.pdf-tools.com/docs/licenses/products/smart-redact-license/) | Smart Suite license key (legacy Smart Redact keys also work) |
+| `PDFTOOLS_LICENSE_KEY` | See the [Smart Suite licensing docs](https://www.pdf-tools.com/docs/licenses/products/smart-suite-license/) | Smart Suite license key (legacy Smart Redact keys also work) |
 | `ENCRYPTION_KEY` | `../../scripts/generate-encryption-key.sh` | AES-256-GCM file encryption key |
 | `ORCHESTRATOR_JWT_SECRET` | `openssl rand -base64 64 \| tr -d '\n'` | JWT signing secret (not needed for minimal) |
 

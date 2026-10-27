@@ -49,7 +49,7 @@ Options:
   -h, --help                      Show this help
 
 Examples:
-  ./smart-suite.sh setup --license-key "<your-license-key>"
+  ./smart-suite.sh setup --license-key "<SMARTST,V1,XXXXXXXXXXXXXXXXXXXX>"
   ./smart-suite.sh up
   ./smart-suite.sh logs job-manager worker
   ./smart-suite.sh health
@@ -297,7 +297,11 @@ write_env_file() {
     fi
     echo ''
     echo '# Optional settings'
-    echo '# VERSION=latest'
+    echo '# Smart Suite images (Job Manager, Orchestrator, HITL Web UI) share one version.'
+    echo '# The Worker versions separately; see the version compatibility reference:'
+    echo '# https://www.pdf-tools.com/docs/smart-suite/references/version-compatibility/'
+    echo '# VERSION=1.0.0'
+    echo '# WORKER_VERSION=1.2.0'
     if [ "$VARIANT" != "minimal" ]; then
       echo '# HITL_WEB_PORT=3000'
       echo '# HITL_ORCHESTRATOR_URL=http://localhost:9983'
@@ -466,7 +470,7 @@ load_env_file() {
     value="${value%\'}"
     value="${value#\'}"
     case "$key" in
-      PDFTOOLS_LICENSE_KEY|ENCRYPTION_KEY|ORCHESTRATOR_JWT_SECRET|VERSION|HITL_WEB_PORT|HITL_ORCHESTRATOR_URL)
+      PDFTOOLS_LICENSE_KEY|ENCRYPTION_KEY|ORCHESTRATOR_JWT_SECRET|VERSION|WORKER_VERSION|HITL_WEB_PORT|HITL_ORCHESTRATOR_URL)
         export "${key}=${value}"
         ;;
     esac
@@ -598,7 +602,8 @@ cmd_docker_run_logs() {
 cmd_docker_run_pull() {
   load_env_file
   require_docker
-  local version="${VERSION:-latest}"
+  local version="${VERSION:-1.0.0}"
+  local worker_version="${WORKER_VERSION:-1.2.0}"
   docker pull postgres:15-alpine
   docker pull alpine:3
   docker pull rabbitmq:4-management-alpine
@@ -606,9 +611,9 @@ cmd_docker_run_pull() {
   docker pull "pdftoolsag/smart-suite-orchestrator:${version}"
   docker pull "pdftoolsag/smart-suite-hitl:${version}"
   if [ "$VARIANT" = "gpu" ]; then
-    docker pull "pdftoolsag/smart-redact-worker:${version}-cuda"
+    docker pull "pdftoolsag/smart-redact-worker:${worker_version}-cuda"
   else
-    docker pull "pdftoolsag/smart-redact-worker:${version}"
+    docker pull "pdftoolsag/smart-redact-worker:${worker_version}"
   fi
 }
 

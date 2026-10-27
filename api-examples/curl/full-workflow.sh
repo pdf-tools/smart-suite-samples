@@ -129,12 +129,10 @@ detect_body=$(curl -sS --max-time "$JOB_TIMEOUT" \
 printf '%s' "$detect_body" > "$TMP_DIR/detection.json"
 check_job_success_or_exit "$TMP_DIR/detection.json" "Detection" "$detect_body"
 
-FDF_FILE_ID="$(extract_json_value "$TMP_DIR/detection.json" 'next((item.get("fileId") for item in (data.get("outputFiles") or []) if item.get("fileCode") == "fdf"), None)')"
-FDF_DEK_TOKEN="$(extract_json_value "$TMP_DIR/detection.json" 'next((item.get("dekToken") for item in (data.get("outputFiles") or []) if item.get("fileCode") == "fdf"), None)')"
 REDACTIONS_JSON="$(extract_json_value "$TMP_DIR/detection.json" '(data.get("result") or {}).get("redactions")')"
 
-if [ -z "$FDF_FILE_ID" ] || [ -z "$FDF_DEK_TOKEN" ]; then
-  echo "  Detection did not return an FDF output file."
+if [ -z "$REDACTIONS_JSON" ]; then
+  echo "  Detection did not return a redactions array."
   echo "$detect_body" | python3 -m json.tool 2>/dev/null || echo "$detect_body"
   exit 1
 fi
@@ -143,7 +141,6 @@ printf '%s' "$REDACTIONS_JSON" > "$TMP_DIR/redactions.json"
 REDACTION_COUNT="$(extract_json_value "$TMP_DIR/redactions.json" 'len(data)')"
 
 echo "  Detection complete."
-echo "  FDF File ID: $FDF_FILE_ID"
 echo "  Redactions: $REDACTION_COUNT"
 echo ""
 
@@ -151,11 +148,11 @@ echo ""
 # Step 3 - Synchronous PII redaction
 # ---------------------------------------------------------------------------
 echo "[3/4] Running synchronous PII redaction..."
-redact_payload=$(python3 - "$FILE_ID" "$FDF_FILE_ID" "$DEK_TOKEN" "$FDF_DEK_TOKEN" "$TMP_DIR/redactions.json" <<'PY'
+redact_payload=$(python3 - "$FILE_ID" "$DEK_TOKEN" "$TMP_DIR/redactions.json" <<'PY'
 import json
 import sys
 
-pdf_file_id, fdf_file_id, pdf_dek_token, fdf_dek_token, redactions_file = sys.argv[1:6]
+pdf_file_id, dek_token, redactions_file = sys.argv[1:4]
 
 with open(redactions_file, "r", encoding="utf-8") as handle:
     redactions = json.load(handle)
@@ -165,9 +162,7 @@ if not isinstance(redactions, list):
 
 print(json.dumps({
     "pdfFileId": pdf_file_id,
-    "fdfFileId": fdf_file_id,
-    "pdfDekToken": pdf_dek_token,
-    "fdfDekToken": fdf_dek_token,
+    "dekToken": dek_token,
     "redactionInput": {
         "redactions": redactions,
     },

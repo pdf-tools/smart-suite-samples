@@ -3,7 +3,7 @@
 # Step 4: Start a PII redaction job
 # =============================================================================
 # Usage:
-#   ./04-redact-pii.sh <pdfFileId> <fdfFileId> <pdfDekToken> <fdfDekToken> <redactions-json-file> [sync|async]
+#   ./04-redact-pii.sh <pdfFileId> <dekToken> <redactions-json-file> [sync|async]
 #
 # The redactions JSON file may contain either:
 #   - the full SI Detection response object, or
@@ -12,12 +12,10 @@
 set -euo pipefail
 
 MANAGER_URL="${MANAGER_URL:-http://localhost:9982}"
-PDF_FILE_ID="${1:?Usage: $0 <pdfFileId> <fdfFileId> <pdfDekToken> <fdfDekToken> <redactions-json-file> [sync|async]}"
-FDF_FILE_ID="${2:?Usage: $0 <pdfFileId> <fdfFileId> <pdfDekToken> <fdfDekToken> <redactions-json-file> [sync|async]}"
-PDF_DEK_TOKEN="${3:?Usage: $0 <pdfFileId> <fdfFileId> <pdfDekToken> <fdfDekToken> <redactions-json-file> [sync|async]}"
-FDF_DEK_TOKEN="${4:?Usage: $0 <pdfFileId> <fdfFileId> <pdfDekToken> <fdfDekToken> <redactions-json-file> [sync|async]}"
-REDACTIONS_FILE="${5:?Usage: $0 <pdfFileId> <fdfFileId> <pdfDekToken> <fdfDekToken> <redactions-json-file> [sync|async]}"
-PROCESSING_MODE="${6:-async}"
+PDF_FILE_ID="${1:?Usage: $0 <pdfFileId> <dekToken> <redactions-json-file> [sync|async]}"
+DEK_TOKEN="${2:?Usage: $0 <pdfFileId> <dekToken> <redactions-json-file> [sync|async]}"
+REDACTIONS_FILE="${3:?Usage: $0 <pdfFileId> <dekToken> <redactions-json-file> [sync|async]}"
+PROCESSING_MODE="${4:-async}"
 
 case "$PROCESSING_MODE" in
   sync|async) ;;
@@ -32,11 +30,11 @@ if [ ! -f "$REDACTIONS_FILE" ]; then
   exit 1
 fi
 
-payload=$(python3 - "$PDF_FILE_ID" "$FDF_FILE_ID" "$PDF_DEK_TOKEN" "$FDF_DEK_TOKEN" "$REDACTIONS_FILE" "$PROCESSING_MODE" <<'PY'
+payload=$(python3 - "$PDF_FILE_ID" "$DEK_TOKEN" "$REDACTIONS_FILE" "$PROCESSING_MODE" <<'PY'
 import json
 import sys
 
-pdf_file_id, fdf_file_id, pdf_dek_token, fdf_dek_token, redactions_file, processing_mode = sys.argv[1:7]
+pdf_file_id, dek_token, redactions_file, processing_mode = sys.argv[1:5]
 
 with open(redactions_file, "r", encoding="utf-8") as handle:
     data = json.load(handle)
@@ -53,9 +51,7 @@ if not isinstance(redactions, list):
 
 payload = {
     "pdfFileId": pdf_file_id,
-    "fdfFileId": fdf_file_id,
-    "pdfDekToken": pdf_dek_token,
-    "fdfDekToken": fdf_dek_token,
+    "dekToken": dek_token,
     "redactionInput": {
         "redactions": redactions,
     },

@@ -40,4 +40,4 @@ MANAGER_URL=http://smartsuite.example.com:9982 dotnet run --project api-examples
 
 ## API reference
 
-For full API documentation, refer to [Smart Redact API Reference](https://www.pdf-tools.com/docs/smart-redact/references/api/).
+For full API documentation, refer to [Smart Suite API Reference](https://www.pdf-tools.com/docs/smart-suite/references/api/).
