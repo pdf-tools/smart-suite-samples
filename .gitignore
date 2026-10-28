@@ -1,7 +1,38 @@
-# Code editors
-.code
-.vscode
-.idea
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.env
+*.env.local
 
-# File system related
+# Generated keys
+*.key
+*.pem
+secrets/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# .NET
+bin/
+obj/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Test artifacts
+downloads/
+*.pdf.out
+detection-result.fdf
+redacted-*.pdf

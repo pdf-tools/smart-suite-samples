@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Start Smart Suite Manager
+# =============================================================================
+set -euo pipefail
+
+: "${PDFTOOLS_LICENSE_KEY:?Error: PDFTOOLS_LICENSE_KEY is not set}"
+: "${ENCRYPTION_KEY:?Error: ENCRYPTION_KEY is not set}"
+
+VERSION="${VERSION:-1.0.0}"
+NETWORK="smart-suite-network"
+
+docker network inspect "$NETWORK" >/dev/null 2>&1 || \
+  docker network create "$NETWORK"
+
+# No --health-cmd: the image ships a shell-free HEALTHCHECK, and --health-cmd would force /bin/sh, which the image lacks.
+echo "Starting Smart Suite Manager..."
+docker run -d \
+  --name smart-suite-job-manager \
+  --network "$NETWORK" \
+  --restart unless-stopped \
+  -p 9982:9982 \
+  -e "ServiceCommunication__ServiceCommunicationType=RabbitMQ" \
+  -e "ServiceCommunication__Host=smart-suite-rabbitmq" \
+  -e "ServiceCommunication__Username=guest" \
+  -e "ServiceCommunication__Password=guest" \
+  -e "Database__DatabaseType=PostgreSql" \
+  -e "Database__ConnectionString=User ID=smartsuite;Password=smartsuite;Server=smart-suite-job-manager-db;Port=5432;Database=smartsuite;Maximum Pool Size=50;Timeout=30;" \
+  -e "FileStorage__FileStorageType=HostFileSystem" \
+  -e "FileStorage__FilesDirectoryPath=/app/storage_folder" \
+  -e "Encryption__EncryptionKey=${ENCRYPTION_KEY}" \
+  -e "Encryption__DekTokenTtlMinutes=1440" \
+  -e "Licensing__LicenseKey=${PDFTOOLS_LICENSE_KEY}" \
+  -v smart-suite-storage:/app/storage_folder \
+  -v smart-suite-logs:/app/logs \
+  "pdftoolsag/smart-suite-job-manager:${VERSION}"
+
+echo "Manager started at http://localhost:9982"
+echo "Swagger UI: http://localhost:9982/swagger"
