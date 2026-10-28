@@ -13,6 +13,7 @@ NETWORK="smart-suite-network"
 docker network inspect "$NETWORK" >/dev/null 2>&1 || \
   docker network create "$NETWORK"
 
+# No --health-cmd: the image ships a shell-free HEALTHCHECK, and --health-cmd would force /bin/sh, which the image lacks.
 echo "Starting Smart Suite Orchestrator..."
 docker run -d \
   --name smart-suite-orchestrator \
@@ -26,11 +27,6 @@ docker run -d \
   -e "Jwt__SecretKey=${ORCHESTRATOR_JWT_SECRET}" \
   -e "Licensing__LicenseKey=${PDFTOOLS_LICENSE_KEY}" \
   -v smart-suite-logs:/app/logs \
-  --health-cmd "curl -f http://localhost:9983/healthz/ready || exit 1" \
-  --health-interval 10s \
-  --health-timeout 15s \
-  --health-start-period 30s \
-  --health-retries 30 \
   "pdftoolsag/smart-suite-orchestrator:${VERSION}"
 
 echo "Orchestrator started at http://localhost:9983"

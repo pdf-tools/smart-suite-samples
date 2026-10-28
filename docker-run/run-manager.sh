@@ -13,6 +13,7 @@ NETWORK="smart-suite-network"
 docker network inspect "$NETWORK" >/dev/null 2>&1 || \
   docker network create "$NETWORK"
 
+# No --health-cmd: the image ships a shell-free HEALTHCHECK, and --health-cmd would force /bin/sh, which the image lacks.
 echo "Starting Smart Suite Manager..."
 docker run -d \
   --name smart-suite-job-manager \
@@ -32,11 +33,6 @@ docker run -d \
   -e "Licensing__LicenseKey=${PDFTOOLS_LICENSE_KEY}" \
   -v smart-suite-storage:/app/storage_folder \
   -v smart-suite-logs:/app/logs \
-  --health-cmd "curl -f http://localhost:9982/healthz/ready || exit 1" \
-  --health-interval 10s \
-  --health-timeout 15s \
-  --health-start-period 30s \
-  --health-retries 30 \
   "pdftoolsag/smart-suite-job-manager:${VERSION}"
 
 echo "Manager started at http://localhost:9982"
