@@ -27,7 +27,7 @@ cp .env.example .env
 docker compose up -d --wait
 ```
 
-**Services started:** Manager (9982), Worker (4885), Orchestrator (9983), HITL Web UI (3000), 2x PostgreSQL
+**Services started:** Manager (9982), Worker (4885), Orchestrator (9983), HITL Web UI (3000), RabbitMQ, 2x PostgreSQL
 
 ### GPU (Full Stack)
 
@@ -44,7 +44,7 @@ cp .env.example .env
 docker compose up -d --wait
 ```
 
-**Services started:** Manager (9982), Worker/GPU (4885), Orchestrator (9983), HITL Web UI (3000), 2x PostgreSQL
+**Services started:** Manager (9982), Worker/GPU (4885), Orchestrator (9983), HITL Web UI (3000), RabbitMQ, 2x PostgreSQL
 
 ### Minimal (API Only)
 
@@ -57,7 +57,7 @@ cp .env.example .env
 docker compose up -d --wait
 ```
 
-**Services started:** Manager (9982), Worker (4885), 1x PostgreSQL
+**Services started:** Manager (9982), Worker (4885), RabbitMQ, 1x PostgreSQL
 
 ## Required Environment Variables
 
@@ -115,7 +115,3 @@ docker compose down
 # Stop and remove containers AND data volumes
 docker compose down -v
 ```
-
-## Troubleshooting
-
-**Upgrading from smart-redact-samples?** Both repositories use the same Docker volume names, so the new stack can pick up the old database and fail to log in (`password authentication failed for user "smartsuite"`). Remove the old data once with `./smart-redact.sh clean --volumes` in the old repository (add `--variant gpu` or `--variant minimal` if you ran those), then run `./smart-suite.sh up` again.

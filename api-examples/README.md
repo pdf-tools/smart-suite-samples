@@ -51,6 +51,8 @@ The repository includes a sample PDF for testing. From the repository root:
 **Python (full workflow):**
 
 ```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r api-examples/python/requirements.txt
 python3 api-examples/python/full_workflow.py "samples/Sample Document - Smart Suite.pdf"
 ```
 

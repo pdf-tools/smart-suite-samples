@@ -16,6 +16,7 @@ flowchart LR
     Orchestrator["Orchestrator API<br/>port 9983<br/>User mgmt, JWT auth"]
     Manager["Manager API<br/>port 9982<br/>Files, Jobs, Orchestration"]
     Worker["Smart Redact Worker<br/>port 4885 (internal)<br/>PII detection, redaction"]
+    RabbitMQ["RabbitMQ<br/>Message broker (internal)"]
     OrchDB[("Orchestrator DB<br/>PostgreSQL")]
     ManagerDB[("Manager DB<br/>PostgreSQL")]
 
@@ -23,7 +24,8 @@ flowchart LR
     Client -- HTTP --> Orchestrator
     HITL -- HTTP --> Orchestrator
     Orchestrator -- HTTP --> Manager
-    Manager -- HTTP --> Worker
+    Manager <-->|AMQP| RabbitMQ
+    Worker <-->|AMQP| RabbitMQ
     Orchestrator --- OrchDB
     Manager --- ManagerDB
 ```

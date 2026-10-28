@@ -45,20 +45,23 @@ You can also use the root helper with the docker-run backend:
 # 2. Databases
 ./run-postgres.sh
 
-# 3. Worker (wait until healthy before starting Manager)
+# 3. RabbitMQ (message broker between Manager and Worker)
+./run-rabbitmq.sh
+
+# 4. Worker (wait until healthy before starting Manager)
 ./run-worker.sh          # CPU
 # ./run-worker-gpu.sh    # or GPU variant
 
 # Inspect worker health - wait until it reports "healthy"
 docker inspect --format='{{.State.Health.Status}}' smart-redact-worker
 
-# 4. Manager (depends on Manager DB and Worker)
+# 5. Manager (depends on Manager DB and Worker)
 ./run-manager.sh
 
-# 5. Orchestrator (depends on Orchestrator DB and Manager)
+# 6. Orchestrator (depends on Orchestrator DB and Manager)
 ./run-orchestrator.sh
 
-# 6. HITL Web UI (depends on Orchestrator)
+# 7. HITL Web UI (depends on Orchestrator)
 ./run-hitl-web.sh
 ```
 
@@ -66,10 +69,10 @@ docker inspect --format='{{.State.Health.Status}}' smart-redact-worker
 
 ```bash
 docker stop smart-suite-job-manager smart-redact-worker smart-suite-orchestrator smart-suite-hitl \
-           smart-suite-job-manager-db smart-suite-orchestrator-db
+           smart-suite-job-manager-db smart-suite-orchestrator-db smart-suite-rabbitmq
 
 docker rm smart-suite-job-manager smart-redact-worker smart-suite-orchestrator smart-suite-hitl \
-         smart-suite-job-manager-db smart-suite-orchestrator-db
+         smart-suite-job-manager-db smart-suite-orchestrator-db smart-suite-rabbitmq
 ```
 
 Or use the cleanup script (covers docker-run naming only):
