@@ -14,6 +14,8 @@
 #   - Worker API:       internal only (port 4885)
 # =============================================================================
 
+name: smart-suite-cpu
+
 services:
   # ---------------------------------------------------------------------------
   # Storage init - chowns shared volume to app user (UID/GID 1654) so that
