@@ -30,7 +30,7 @@ echo "[4/7] Starting Worker..."
 echo "Waiting for Worker to become healthy..."
 WORKER_HEALTH_TIMEOUT_SECONDS="${WORKER_HEALTH_TIMEOUT_SECONDS:-300}"
 worker_wait_start=$(date +%s)
-until docker inspect --format='{{.State.Health.Status}}' smart-redact-worker 2>/dev/null | grep -q healthy; do
+until docker inspect --format='{{.State.Health.Status}}' smart-redact-worker 2>/dev/null | grep -qx healthy; do
   if (( $(date +%s) - worker_wait_start > WORKER_HEALTH_TIMEOUT_SECONDS )); then
     echo "Error: Worker did not become healthy within ${WORKER_HEALTH_TIMEOUT_SECONDS}s." >&2
     echo "Recent Worker logs:" >&2

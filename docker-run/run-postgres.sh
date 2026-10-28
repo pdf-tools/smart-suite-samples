@@ -42,7 +42,23 @@ docker run -d \
   --health-retries 5 \
   postgres:15-alpine
 
+DB_HEALTH_TIMEOUT_SECONDS="${DB_HEALTH_TIMEOUT_SECONDS:-120}"
+
+wait_for_healthy() {
+  local container="$1"
+  local start
+  start=$(date +%s)
+  until docker inspect --format='{{.State.Health.Status}}' "$container" 2>/dev/null | grep -qx healthy; do
+    if (( $(date +%s) - start > DB_HEALTH_TIMEOUT_SECONDS )); then
+      echo "Error: ${container} did not become healthy within ${DB_HEALTH_TIMEOUT_SECONDS}s." >&2
+      docker logs --tail 50 "$container" >&2 || true
+      exit 1
+    fi
+    sleep 1
+  done
+}
+
 echo "Databases started. Waiting for health checks..."
-until docker inspect --format='{{.State.Health.Status}}' smart-suite-job-manager-db 2>/dev/null | grep -q healthy; do sleep 1; done
-until docker inspect --format='{{.State.Health.Status}}' smart-suite-orchestrator-db 2>/dev/null | grep -q healthy; do sleep 1; done
+wait_for_healthy smart-suite-job-manager-db
+wait_for_healthy smart-suite-orchestrator-db
 echo "Databases are ready."

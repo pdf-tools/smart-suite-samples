@@ -17,6 +17,7 @@ NETWORK="smart-suite-network"
 docker network inspect "$NETWORK" >/dev/null 2>&1 || \
   docker network create "$NETWORK"
 
+# No --health-cmd: the image ships a shell-free HEALTHCHECK, and --health-cmd would force /bin/sh, which the image lacks.
 echo "Starting Smart Redact Worker (GPU)..."
 docker run -d \
   --name smart-redact-worker \
@@ -37,11 +38,6 @@ docker run -d \
   -e "NVIDIA_DRIVER_CAPABILITIES=compute,utility" \
   -v smart-suite-storage:/app/storage_folder \
   -v smart-suite-logs:/app/logs \
-  --health-cmd "curl -f http://localhost:4885/healthz/ready || exit 1" \
-  --health-interval 10s \
-  --health-timeout 30s \
-  --health-start-period 60s \
-  --health-retries 30 \
   "pdftoolsag/smart-redact-worker:${WORKER_VERSION}-cuda"
 
 echo "Worker (GPU) started."

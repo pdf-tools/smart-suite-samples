@@ -57,7 +57,8 @@ Console.WriteLine($"Output file:              {outputPath}");
 
 using var client = new HttpClient
 {
-    BaseAddress = new Uri(baseUrl)
+    BaseAddress = new Uri(baseUrl),
+    Timeout = Timeout.InfiniteTimeSpan
 };
 
 var jsonOptions = new JsonSerializerOptions

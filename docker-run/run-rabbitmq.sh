@@ -24,5 +24,14 @@ docker run -d \
   rabbitmq:4-management-alpine
 
 echo "RabbitMQ started. Waiting for health check..."
-until docker inspect --format='{{.State.Health.Status}}' smart-suite-rabbitmq 2>/dev/null | grep -q healthy; do sleep 1; done
+RABBITMQ_HEALTH_TIMEOUT_SECONDS="${RABBITMQ_HEALTH_TIMEOUT_SECONDS:-180}"
+rabbitmq_wait_start=$(date +%s)
+until docker inspect --format='{{.State.Health.Status}}' smart-suite-rabbitmq 2>/dev/null | grep -qx healthy; do
+  if (( $(date +%s) - rabbitmq_wait_start > RABBITMQ_HEALTH_TIMEOUT_SECONDS )); then
+    echo "Error: RabbitMQ did not become healthy within ${RABBITMQ_HEALTH_TIMEOUT_SECONDS}s." >&2
+    docker logs --tail 50 smart-suite-rabbitmq >&2 || true
+    exit 1
+  fi
+  sleep 1
+done
 echo "RabbitMQ is ready."

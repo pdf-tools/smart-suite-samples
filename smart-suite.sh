@@ -500,7 +500,7 @@ wait_for_worker_container() {
   fi
   start="$(date +%s)"
   echo "Waiting for Worker to become healthy..."
-  until docker inspect --format='{{.State.Health.Status}}' smart-redact-worker 2>/dev/null | grep -q healthy; do
+  until docker inspect --format='{{.State.Health.Status}}' smart-redact-worker 2>/dev/null | grep -qx healthy; do
     if (( $(date +%s) - start > timeout )); then
       echo "Error: Worker did not become healthy within ${timeout}s." >&2
       docker logs --tail 50 smart-redact-worker >&2 || true

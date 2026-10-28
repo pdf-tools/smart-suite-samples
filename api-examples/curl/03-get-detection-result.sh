@@ -40,12 +40,15 @@ job_status = data.get("jobStatus")
 error = data.get("error") or {}
 if job_status:
     print(f"  jobStatus: {job_status}")
-if error.get("title"):
-    print(f"  errorTitle: {error.get('title')}")
-if error.get("detail"):
-    print(f"  errorDetail: {error.get('detail')}")
-if error.get("traceId"):
-    print(f"  errorTraceId: {error.get('traceId')}")
+error_title = error.get("title")
+error_detail = error.get("detail")
+error_trace_id = error.get("traceId")
+if error_title:
+    print(f"  errorTitle: {error_title}")
+if error_detail:
+    print(f"  errorDetail: {error_detail}")
+if error_trace_id:
+    print(f"  errorTraceId: {error_trace_id}")
 
 redactions = (data.get("result") or {}).get("redactions") or []
 if redactions:
