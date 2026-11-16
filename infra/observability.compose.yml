@@ -1,0 +1,107 @@
+# =============================================================================
+# Smart Suite - Observability stack
+# =============================================================================
+# Alloy receives OTLP from the Manager
+# and Worker and forwards traces to Tempo, logs to Loki and metrics to
+# Prometheus. Grafana provisions the "Smart Suite - Overview" dashboard at
+# startup.
+#
+# Services:
+#   - Grafana:    http://localhost:3001  (GRAFANA_PORT)
+#   - Prometheus: http://localhost:9090  (PROMETHEUS_PORT)
+# =============================================================================
+
+services:
+  smart-suite-alloy:
+    image: grafana/alloy:v1.5.1
+    container_name: smart-suite-alloy
+    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
+    expose:
+      - "4317"
+      - "4318"
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+    networks:
+      - smart-suite-network
+    restart: unless-stopped
+    depends_on:
+      - smart-suite-tempo
+      - smart-suite-loki
+      - smart-suite-prometheus
+
+  smart-suite-tempo:
+    image: grafana/tempo:2.6.1
+    container_name: smart-suite-tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    expose:
+      - "3200"
+      - "4318"
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-data:/var/tempo
+    networks:
+      - smart-suite-network
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+  smart-suite-loki:
+    image: grafana/loki:3.3.2
+    container_name: smart-suite-loki
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    expose:
+      - "3100"
+    volumes:
+      - ./loki.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    networks:
+      - smart-suite-network
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+  smart-suite-prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: smart-suite-prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--web.enable-remote-write-receiver"]
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - smart-suite-network
+    restart: unless-stopped
+
+  smart-suite-grafana:
+    image: grafana/grafana:11.4.0
+    container_name: smart-suite-grafana
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3001}:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      # Lets anonymous viewers use Explore for traces and logs.
+      GF_USERS_VIEWERS_CAN_EDIT: "true"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/smart-suite-overview.json
+    volumes:
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    networks:
+      - smart-suite-network
+    restart: unless-stopped
+    depends_on:
+      - smart-suite-tempo
+      - smart-suite-loki
+      - smart-suite-prometheus
+
+volumes:
+  tempo-data:
+  loki-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  smart-suite-network:
+    driver: bridge

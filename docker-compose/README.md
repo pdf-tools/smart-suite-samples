@@ -27,7 +27,7 @@ cp .env.example .env
 docker compose up -d --wait
 ```
 
-**Services started:** Manager (9982), Worker (4885), Orchestrator (9983), HITL Web UI (3000), RabbitMQ, 2x PostgreSQL
+**Services started:** Manager (9982), Worker (4885), Orchestrator (9983), HITL Web UI (3000), RabbitMQ, 2x PostgreSQL, observability stack (Grafana 3001, Prometheus 9090)
 
 ### GPU (Full Stack)
 
@@ -44,7 +44,7 @@ cp .env.example .env
 docker compose up -d --wait
 ```
 
-**Services started:** Manager (9982), Worker/GPU (4885), Orchestrator (9983), HITL Web UI (3000), RabbitMQ, 2x PostgreSQL
+**Services started:** Manager (9982), Worker/GPU (4885), Orchestrator (9983), HITL Web UI (3000), RabbitMQ, 2x PostgreSQL, observability stack (Grafana 3001, Prometheus 9090)
 
 ### Minimal (API Only)
 
@@ -57,7 +57,7 @@ cp .env.example .env
 docker compose up -d --wait
 ```
 
-**Services started:** Manager (9982), Worker (4885), RabbitMQ, 1x PostgreSQL
+**Services started:** Manager (9982), Worker (4885), RabbitMQ, 1x PostgreSQL, observability stack (Grafana 3001, Prometheus 9090)
 
 ## Required Environment Variables
 
@@ -68,6 +68,10 @@ docker compose up -d --wait
 | `ORCHESTRATOR_JWT_SECRET` | `openssl rand -base64 64 \| tr -d '\n'` | JWT signing secret (not needed for minimal) |
 
 If the Docker Hub images are private, run `docker login` with an account that can pull from `pdftoolsag` before starting the stack.
+
+## Observability
+
+Grafana runs at `http://localhost:3001` with the "Smart Suite - Overview" dashboard, and Prometheus at `http://localhost:9090`. Set `GRAFANA_PORT` or `PROMETHEUS_PORT` to change the host ports. See [docs/observability.md](../docs/observability.md).
 
 ## HITL Web UI
 
