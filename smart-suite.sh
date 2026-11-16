@@ -306,6 +306,8 @@ write_env_file() {
       echo '# HITL_WEB_PORT=3000'
       echo '# HITL_ORCHESTRATOR_URL=http://localhost:9983'
     fi
+    echo '# GRAFANA_PORT=3001'
+    echo '# PROMETHEUS_PORT=9090'
   } > "$target"
 
   chmod 600 "$target" 2>/dev/null || true
@@ -350,6 +352,7 @@ cmd_compose_up() {
     echo "  Orchestrator API: $(swagger_url_from_base "$orchestrator_url")"
   fi
   echo "  Manager API:      http://localhost:9982/swagger"
+  echo "  Grafana:          http://localhost:$(env_file_get "GRAFANA_PORT" "3001")"
 }
 
 cmd_compose_down() {
@@ -470,7 +473,7 @@ load_env_file() {
     value="${value%\'}"
     value="${value#\'}"
     case "$key" in
-      PDFTOOLS_LICENSE_KEY|ENCRYPTION_KEY|ORCHESTRATOR_JWT_SECRET|VERSION|WORKER_VERSION|HITL_WEB_PORT|HITL_ORCHESTRATOR_URL)
+      PDFTOOLS_LICENSE_KEY|ENCRYPTION_KEY|ORCHESTRATOR_JWT_SECRET|VERSION|WORKER_VERSION|HITL_WEB_PORT|HITL_ORCHESTRATOR_URL|GRAFANA_PORT|PROMETHEUS_PORT)
         export "${key}=${value}"
         ;;
     esac

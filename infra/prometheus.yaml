@@ -1,0 +1,4 @@
+# Smart Suite services push metrics over OTLP to Alloy, and Alloy remote-writes
+# the metrics to this Prometheus instance. This file omits scrape_configs.
+global:
+  evaluation_interval: 15s

@@ -36,6 +36,8 @@ flowchart LR
 | **Orchestrator**        | 9983 | Web UI backend with user management and JWT authentication                  |
 | **Manager**             | 9982 | Client-facing API for file uploads and detection/redaction jobs             |
 | **Smart Redact Worker** | 4885 | Internal service that performs PII detection and redaction                  |
+| **Grafana**             | 3001 | Dashboards, traces, and logs (see [docs/observability.md](docs/observability.md)) |
+| **Prometheus**          | 9090 | Metrics store and query UI                                                  |
 
 > For detailed architecture documentation, refer to [Smart Suite Architecture](https://www.pdf-tools.com/docs/smart-suite/references/architecture/).
 
@@ -83,6 +85,7 @@ Once running:
 - **HITL Web UI:** http://localhost:3000
 - **Manager API (Swagger):** http://localhost:9982/swagger
 - **Orchestrator API (Swagger):** http://localhost:9983/swagger
+- **Grafana:** http://localhost:3001 ("Smart Suite - Overview" dashboard)
 
 ### Default login
 
@@ -107,6 +110,11 @@ smart-suite-samples/
 │   └── minimal/             #   Manager + Worker only (no Orchestrator)
 │
 ├── docker-run/              # Individual docker run scripts
+│
+├── infra/                   # Configuration for the observability stack (Alloy, Tempo, Loki, Prometheus, Grafana)
+│   └── dashboards/          #   Grafana dashboards
+│
+├── docs/                    # Additional guides (observability)
 │
 ├── api-examples/            # API usage examples
 │   ├── curl/                #   Shell scripts (step-by-step)
@@ -150,6 +158,8 @@ Configure all Smart Suite services through environment variables:
 | `WORKER_VERSION`          | No       | Image tag for the Smart Redact Worker (default: `1.2.0`)                                       |
 | `HITL_WEB_PORT`           | No       | Host port for the HITL Web UI (default: `3000`)                                                |
 | `HITL_ORCHESTRATOR_URL`   | No       | Browser-facing Orchestrator API URL used by the HITL Web UI (default: `http://localhost:9983`) |
+| `GRAFANA_PORT`            | No       | Host port for Grafana (default: `3001`)                                                        |
+| `PROMETHEUS_PORT`         | No       | Host port for Prometheus (default: `9090`)                                                     |
 
 > Smart Suite and each Worker are released independently and carry their own version numbers, so `VERSION` and
 > `WORKER_VERSION` are pinned separately and their `latest` tags are not a matched pair. For which Worker
@@ -171,6 +181,7 @@ For any non-local deployment, replace these with strong values.
 
 ## Documentation
 
+- [Observability](docs/observability.md): metrics, traces, logs, dashboards
 - [Smart Suite Documentation](https://www.pdf-tools.com/docs/smart-suite/)
 - [Configuration Guide](https://www.pdf-tools.com/docs/smart-suite/guides/configuration/)
 - [API Reference](https://www.pdf-tools.com/docs/smart-suite/references/api/)

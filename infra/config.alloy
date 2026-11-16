@@ -1,0 +1,52 @@
+// Receive OTLP telemetry from the Manager and Worker
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.default.input]
+    logs    = [otelcol.processor.batch.default.input]
+    traces  = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.prometheus.default.input]
+    logs    = [otelcol.exporter.otlphttp.loki.input]
+    traces  = [otelcol.exporter.otlphttp.tempo.input]
+  }
+}
+
+// ── Metrics → Prometheus ─────────────────────────────────────────────────────
+
+otelcol.exporter.prometheus "default" {
+  forward_to = [prometheus.remote_write.local.receiver]
+}
+
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://smart-suite-prometheus:9090/api/v1/write"
+  }
+}
+
+// ── Logs → Loki (native OTLP endpoint) ───────────────────────────────────────
+
+otelcol.exporter.otlphttp "loki" {
+  client {
+    endpoint = "http://smart-suite-loki:3100/otlp"
+  }
+}
+
+// ── Traces → Tempo ───────────────────────────────────────────────────────────
+
+otelcol.exporter.otlphttp "tempo" {
+  client {
+    endpoint = "http://smart-suite-tempo:4318"
+  }
+}
