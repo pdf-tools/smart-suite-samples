@@ -1,7 +1,7 @@
 # =============================================================================
 # Smart Suite - Observability stack
 # =============================================================================
-# Every Docker Compose variant includes this file. Alloy receives OTLP from the Manager
+# Alloy receives OTLP from the Manager
 # and Worker and forwards traces to Tempo, logs to Loki and metrics to
 # Prometheus. Grafana provisions the "Smart Suite - Overview" dashboard at
 # startup.

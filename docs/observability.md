@@ -1,7 +1,7 @@
 # Observability
 
-The cpu, gpu, and minimal Docker Compose variants start Alloy, Tempo, Loki, Prometheus, and Grafana. The Manager and
-Worker export traces, logs, and metrics over OTLP, and Grafana displays all three.
+The Manager and Worker export traces, logs, and metrics over OTLP to Alloy, which forwards them to Tempo, Loki, and
+Prometheus. Grafana displays all three.
 
 | Tool | URL | Purpose |
 |------|-----|---------|
@@ -20,8 +20,7 @@ flowchart LR
     Prometheus --> Grafana
 ```
 
-Every variant includes the stack from `infra/observability.compose.yml`, and sets the OTLP settings on the Manager
-and Worker. Set `GRAFANA_PORT` or `PROMETHEUS_PORT` in `.env` to change the host ports.
+Set `GRAFANA_PORT` or `PROMETHEUS_PORT` in `.env` to change the host ports.
 
 Grafana and Prometheus listen on `127.0.0.1` only. Grafana accepts anonymous visitors, gives them the Viewer role,
 and lets them use Explore for traces and logs.

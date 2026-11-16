@@ -71,7 +71,7 @@ If the Docker Hub images are private, run `docker login` with an account that ca
 
 ## Observability
 
-All variants start Grafana at `http://localhost:3001` with the "Smart Suite - Overview" dashboard, together with Alloy, Tempo, Loki, and Prometheus (`http://localhost:9090`). Set `GRAFANA_PORT` or `PROMETHEUS_PORT` to change the host ports. See [docs/observability.md](../docs/observability.md).
+Grafana runs at `http://localhost:3001` with the "Smart Suite - Overview" dashboard, and Prometheus at `http://localhost:9090`. Set `GRAFANA_PORT` or `PROMETHEUS_PORT` to change the host ports. See [docs/observability.md](../docs/observability.md).
 
 ## HITL Web UI
 
